@@ -1,7 +1,7 @@
-const { rewriteWithHuggingFace } = require("../services/huggingface")
-const { buildRewritePrompt } = require("../utils/promptBuilder")
+import { rewriteWithHuggingFace } from "../services/huggingface.js"
+import { buildRewritePrompt } from "../utils/promptBuilder.js"
 
-const handleRewrite = async (req, res) => {
+export const handleRewrite = async (req, res) => {
   const { originalScript, videoTopic, additionalInfo, model } = req.body
 
   if (!originalScript || !model) {
@@ -19,5 +19,3 @@ const handleRewrite = async (req, res) => {
       .json({ error: "Model failed to respond", details: err.message })
   }
 }
-
-module.exports = { handleRewrite }

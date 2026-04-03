@@ -1,19 +1,22 @@
-const axios = require("axios")
+import { InferenceClient } from "@huggingface/inference"
 
-const rewriteWithHuggingFace = async (prompt, model) => {
-  const HF_API_URL = `https://api-inference.huggingface.co/models/${model}`
-  const response = await axios.post(
-    HF_API_URL,
-    { inputs: prompt },
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.HF_TOKEN}`,
+const HF_TOKEN = process.env.HF_TOKEN
+const client = new InferenceClient(HF_TOKEN)
+
+export const rewriteWithHuggingFace = async (prompt) => {
+  try {
+    const response = await client.textGeneration({
+      model: "HuggingFaceTB/SmolLM3-3B", // or "katanemo/Arch-Router-1.5B"
+      inputs: prompt,
+      parameters: {
+        max_new_tokens: 512,
+        temperature: 0.7,
       },
-      timeout: 60_000,
-    }
-  )
+    })
 
-  return response.data?.[0]?.generated_text || "No response from model"
+    return response.generated_text || "No response"
+  } catch (err) {
+    console.error("❌ Hugging Face Error:", err.response?.data || err.message)
+    throw new Error("Model failed to respond or is unavailable")
+  }
 }
-
-module.exports = { rewriteWithHuggingFace }
